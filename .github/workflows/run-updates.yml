@@ -1,0 +1,53 @@
+name: Deploiement des Correctifs Windows via WSUS
+
+on:
+  schedule:
+    # Se déclenche toutes les heures de 18h à 23h, uniquement le mardi (jour 2)
+    # Note : GitHub Actions utilise l'heure UTC. Ajustez selon votre fuseau horaire.
+    - cron: '0 18,19,20,21,22,23 * * 2'
+  workflow_dispatch: # Permet de lancer le pipeline manuellement en 1 clic pour tester
+
+jobs:
+  check-date-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code du dépôt
+        uses: actions/checkout@v4
+
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Valider la période de patch (3 semaines après le 2ème mardi)
+        id: date_check
+        run: |
+          python3 -c "
+          import datetime, sys
+          aujourdhui = datetime.date.today()
+          premier_du_mois = aujourdhui.replace(day=1)
+          decalage_premier_mardi = (1 - premier_du_mois.weekday() + 7) % 7
+          premier_mardi = premier_du_mois + datetime.timedelta(days=decalage_premier_mardi)
+          deuxieme_mardi = premier_mardi + datetime.timedelta(weeks=1)
+          fin_periode_patch = deuxieme_mardi + datetime.timedelta(days=21)
+          
+          print(f'Deuxième mardi : {deuxieme_mardi}')
+          print(f'Date actuelle : {aujourdhui}')
+          
+          if deuxieme_mardi <= aujourdhui <= fin_periode_patch:
+              print('✅ Date valide.')
+          else:
+              print('❌ Hors période. Arrêt du workflow.')
+              sys.exit(1)
+          "
+
+      - name: Installer Ansible et l'extension WinRM
+        run: |
+          pip install ansible pywinrm
+
+      - name: Exécuter le Playbook Ansible WSUS
+        env:
+          # Injection sécurisée du mot de passe Windows stocké dans les secrets GitHub
+          ANSIBLE_PASSWORD: ${{ secrets.WIN_PASSWORD }}
+        run: |
+          ansible-playbook -i inventory.ini playbook.yml
