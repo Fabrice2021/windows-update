@@ -48,6 +48,6 @@ jobs:
       - name: Exécuter le Playbook Ansible WSUS
         env:
           # Injection sécurisée du mot de passe Windows stocké dans les secrets GitHub
-          ANSIBLE_PASSWORD: ${{ secrets.WIN_PASSWORD }}
+          ANSIBLE_PASSWORD: ${{ secrets.WIN_SERVERS_PASSWORD }}
         run: |
           ansible-playbook -i inventory.ini playbook.yml
