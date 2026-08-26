@@ -4,7 +4,7 @@
   gather_facts: no
   vars:
     # Remplacez par l'URL et le port de votre serveur WSUS (ex: 8530 pour HTTP, 8531 pour HTTPS)
-    wsus_server_url: "http://votre-serveur-wsus.local:8530"
+    wsus_server_url: "http://priwsus001.local:8530"
 
   tasks:
     - name: 1. Configurer le serveur WSUS dans le registre Windows
