@@ -5,7 +5,7 @@
   serial: 30 # Traite les 200 serveurs par lots de 30 pour préserver le réseau
   vars:
     # CONFIGURATION ZABBIX : Modifiez ces valeurs selon votre infrastructure
-    zabbix_server_ip: "192.168.100.100"
+    zabbix_server_ip: "192.168.100.135"
     zabbix_version: "6.0"
     zabbix_msi_url: "https://zabbix.com"
 
